@@ -26,42 +26,11 @@
 package java.util;
 
 /**
- * This class provides a skeletal implementation of the {@link List}
- * interface to minimize the effort required to implement this interface
- * backed by a "random access" data store (such as an array).  For sequential
- * access data (such as a linked list), {@link AbstractSequentialList} should
- * be used in preference to this class.
- *
- * <p>To implement an unmodifiable list, the programmer needs only to extend
- * this class and provide implementations for the {@link #get(int)} and
- * {@link List#size() size()} methods.
- *
- * <p>To implement a modifiable list, the programmer must additionally
- * override the {@link #set(int, Object) set(int, E)} method (which otherwise
- * throws an {@code UnsupportedOperationException}).  If the list is
- * variable-size the programmer must additionally override the
- * {@link #add(int, Object) add(int, E)} and {@link #remove(int)} methods.
- *
- * <p>The programmer should generally provide a void (no argument) and collection
- * constructor, as per the recommendation in the {@link Collection} interface
- * specification.
- *
- * <p>Unlike the other abstract collection implementations, the programmer does
- * <i>not</i> have to provide an iterator implementation; the iterator and
- * list iterator are implemented by this class, on top of the "random access"
- * methods:
- * {@link #get(int)},
- * {@link #set(int, Object) set(int, E)},
- * {@link #add(int, Object) add(int, E)} and
- * {@link #remove(int)}.
- *
- * <p>The documentation for each non-abstract method in this class describes its
- * implementation in detail.  Each of these methods may be overridden if the
- * collection being implemented admits a more efficient implementation.
- *
- * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
+ *AbstractList 作为 List 家族的中坚力量
+ * 既实现了 List 的期望
+ * 也继承了 AbstractCollection 的传统
+ * 还创建了内部的迭代器 Itr, ListItr
+ * 还有两个内部子类 SubList 和 RandomAccessSublist；
  *
  * @author  Josh Bloch
  * @author  Neal Gafter
@@ -111,7 +80,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
 
     /**
      * {@inheritDoc}
-     *
+     *  这个get方法需要有具体不同的类来具体实现
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     abstract public E get(int index);
@@ -151,7 +120,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation always throws an
+     * 由具体类来实现
      * {@code UnsupportedOperationException}.
      *
      * @throws UnsupportedOperationException {@inheritDoc}
@@ -167,9 +136,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation first gets a list iterator (with
-     * {@code listIterator()}).  Then, it iterates over the list until the
-     * specified element is found or the end of the list is reached.
+     * 获取出现对象的首次索引
      *
      * @throws ClassCastException   {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
@@ -177,12 +144,18 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
     public int indexOf(Object o) {
         ListIterator<E> it = listIterator();
         if (o==null) {
+            // 如果传过来的对象就是空对象,需要判断当前对象是否是空对象
             while (it.hasNext())
+                // 当需要遍历的对象有下一个对象的化
                 if (it.next()==null)
+                    // 下一个对象是空对象, 返回空对象前边的索引
                     return it.previousIndex();
         } else {
+            // 查找的对象不是空对象
             while (it.hasNext())
+                // 找到该对象
                 if (o.equals(it.next()))
+                    // 此时迭代器已经指向下一个元素, 因此返回他的前一个索引
                     return it.previousIndex();
         }
         return -1;
@@ -191,21 +164,20 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation first gets a list iterator that points to the end
-     * of the list (with {@code listIterator(size())}).  Then, it iterates
-     * backwards over the list until the specified element is found, or the
-     * beginning of the list is reached.
+     * 获取指定对象最后一次出现的位置
      *
      * @throws ClassCastException   {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */
     public int lastIndexOf(Object o) {
+        // 注意, 此时定义的是一个游标, 让游标指向最后一个元素的下一个位置
         ListIterator<E> it = listIterator(size());
         if (o==null) {
             while (it.hasPrevious())
                 if (it.previous()==null)
                     return it.nextIndex();
         } else {
+            // 有前一个元素
             while (it.hasPrevious())
                 if (o.equals(it.previous()))
                     return it.nextIndex();
@@ -329,35 +301,38 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
 
     private class Itr implements Iterator<E> {
         /**
-         * Index of element to be returned by subsequent call to next.
+         * 定义了一个游标, 不同于C语言中的指针,他是在两个元素之间的位置
          */
         int cursor = 0;
 
         /**
-         * Index of element returned by most recent call to next or
-         * previous.  Reset to -1 if this element is deleted by a call
-         * to remove.
+         * 上一次迭代到的元素位置, 每次使用完就会置为 -1
          */
         int lastRet = -1;
 
         /**
-         * The modCount value that the iterator believes that the backing
-         * List should have.  If this expectation is violated, the iterator
-         * has detected concurrent modification.
+         *  用来判断是否发生并发操作的标识, 如果这两个值不一致, 就会报错
          */
         int expectedModCount = modCount;
 
         public boolean hasNext() {
+            // 游标不等于size, 就代表有下一个
             return cursor != size();
         }
 
         public E next() {
+            // 判断是否并发
             checkForComodification();
             try {
+                // 把游标给到i
                 int i = cursor;
+                // 把游标指向的元素取出
                 E next = get(i);
+                // 让当前游标的位置给到lastRet
                 lastRet = i;
+                // 使当前游标+1
                 cursor = i + 1;
+                // 返回下一个元素
                 return next;
             } catch (IndexOutOfBoundsException e) {
                 checkForComodification();
@@ -365,33 +340,41 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
             }
         }
 
+        // 移除一个元素
         public void remove() {
             if (lastRet < 0)
                 throw new IllegalStateException();
             checkForComodification();
 
             try {
+                // 调用AbstractList类中的remove方法, 因为该方法不是静态方法, 所以需要AbstractList.this
                 AbstractList.this.remove(lastRet);
                 if (lastRet < cursor)
+                    // 如果上一次元素迭代到的位置小于游标, 让游标向前指向
                     cursor--;
+                // 删除后, 上次迭代的记录就会置为-1
                 lastRet = -1;
                 expectedModCount = modCount;
             } catch (IndexOutOfBoundsException e) {
                 throw new ConcurrentModificationException();
             }
         }
-
+        // 检查是否有并发修改
         final void checkForComodification() {
             if (modCount != expectedModCount)
                 throw new ConcurrentModificationException();
         }
     }
 
+    // ListItr 是 Itr 的增强版, 明确游标是在两个元素之间的一个指针,,
+    // ListItr 相对于 多了 向前 和 set 操作。
     private class ListItr extends Itr implements ListIterator<E> {
+        // 多了个指定游标位置的构造参数，怎么都不检查是否越界！
         ListItr(int index) {
             cursor = index;
         }
 
+        // 游标不为0代表具有前一个元素
         public boolean hasPrevious() {
             return cursor != 0;
         }
@@ -399,8 +382,10 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
         public E previous() {
             checkForComodification();
             try {
+                // 让游标减1
                 int i = cursor - 1;
                 E previous = get(i);
+                // 上一次操作元素的位置就是当前游标的位置,因为游标前移了
                 lastRet = cursor = i;
                 return previous;
             } catch (IndexOutOfBoundsException e) {
@@ -409,10 +394,12 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
             }
         }
 
+        // 下一个索引就是游标当前的位置
         public int nextIndex() {
             return cursor;
         }
 
+        // 前一个索引就是游标减去1 的位置, 明确游标是在两个元素之间的一个指针
         public int previousIndex() {
             return cursor-1;
         }
@@ -423,6 +410,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
             checkForComodification();
 
             try {
+                // 设置最后一次操作元素为e
                 AbstractList.this.set(lastRet, e);
                 expectedModCount = modCount;
             } catch (IndexOutOfBoundsException ex) {
@@ -435,6 +423,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
 
             try {
                 int i = cursor;
+                // 让游标的位置赋值给i
                 AbstractList.this.add(i, e);
                 lastRet = -1;
                 cursor = i + 1;
@@ -480,6 +469,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      * @throws IllegalArgumentException if the endpoint indices are out of order
      *         {@code (fromIndex > toIndex)}
      */
+
     public List<E> subList(int fromIndex, int toIndex) {
         return (this instanceof RandomAccess ?
                 new RandomAccessSubList<>(this, fromIndex, toIndex) :
@@ -610,6 +600,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
     }
 }
 
+// AbstractList 的子类，表示父 List 的一部分
 class SubList<E> extends AbstractList<E> {
     private final AbstractList<E> l;
     private final int offset;
@@ -624,23 +615,28 @@ class SubList<E> extends AbstractList<E> {
             throw new IllegalArgumentException("fromIndex(" + fromIndex +
                                                ") > toIndex(" + toIndex + ")");
         l = list;
-        offset = fromIndex;
+        offset = fromIndex; //表示从那个位置截取
         size = toIndex - fromIndex;
+        // 因此就截取通常是左闭右开区间
         this.modCount = l.modCount;
+        //和父类使用同一个 modCount
     }
 
+    //使用父类的 set()
     public E set(int index, E element) {
         rangeCheck(index);
         checkForComodification();
         return l.set(index+offset, element);
     }
 
+    // 使用父类的get()
     public E get(int index) {
         rangeCheck(index);
         checkForComodification();
         return l.get(index+offset);
     }
 
+    //子 List 的大小
     public int size() {
         checkForComodification();
         return size;
@@ -649,6 +645,7 @@ class SubList<E> extends AbstractList<E> {
     public void add(int index, E element) {
         rangeCheckForAdd(index);
         checkForComodification();
+        //根据子 List 开始的位置，加上偏移量，直接在父 List 上进行添加
         l.add(index+offset, element);
         this.modCount = l.modCount;
         size++;
@@ -657,6 +654,7 @@ class SubList<E> extends AbstractList<E> {
     public E remove(int index) {
         rangeCheck(index);
         checkForComodification();
+        //根据子 List 开始的位置，加上偏移量，直接在父 List 上进行删除
         E result = l.remove(index+offset);
         this.modCount = l.modCount;
         size--;
@@ -665,6 +663,7 @@ class SubList<E> extends AbstractList<E> {
 
     protected void removeRange(int fromIndex, int toIndex) {
         checkForComodification();
+        //调用父类的 局部删除
         l.removeRange(fromIndex+offset, toIndex+offset);
         this.modCount = l.modCount;
         size -= (toIndex-fromIndex);
@@ -681,6 +680,7 @@ class SubList<E> extends AbstractList<E> {
             return false;
 
         checkForComodification();
+        //还是使用的父类 addAll()
         l.addAll(offset+index, c);
         this.modCount = l.modCount;
         size += cSize;
@@ -691,10 +691,11 @@ class SubList<E> extends AbstractList<E> {
         return listIterator();
     }
 
+
     public ListIterator<E> listIterator(final int index) {
         checkForComodification();
         rangeCheckForAdd(index);
-
+        //创建一个 匿名内部 ListIterator，指向的还是 父类的 listIterator
         return new ListIterator<E>() {
             private final ListIterator<E> i = l.listIterator(index+offset);
 
@@ -768,8 +769,13 @@ class SubList<E> extends AbstractList<E> {
         if (this.modCount != l.modCount)
             throw new ConcurrentModificationException();
     }
+
+    //  SubList 就是吭老族，虽然自立门户，等到要干活时，使用的都是父类的方法，父类的数据。
+    // 也因此截取子list时, 就会影响到父list
 }
 
+//    RandomAccessSubList 只不过是在 SubList 之外加了个 RandomAccess 的标识，
+//    表明他可以支持随机访问而已，别无他尔。
 class RandomAccessSubList<E> extends SubList<E> implements RandomAccess {
     RandomAccessSubList(AbstractList<E> list, int fromIndex, int toIndex) {
         super(list, fromIndex, toIndex);

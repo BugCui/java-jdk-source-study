@@ -32,7 +32,7 @@ package java.util;
  * 遍历时获取迭代器当前游标所在位置。
  * 注意，迭代器 没有当前所在元素一说，它只有一个游标( cursor )的概念，这个游标总是在元素之间，如下:
  * <PRE>
- *                      Element(0)   Element(1)   Element(2)   ... Element(n-1)
+ *            Element(0)   Element(1)   Element(2)   ... Element(n-1)
  * cursor positions:  ^            ^            ^            ^                  ^
  * @author  Josh Bloch
  * @see Collection

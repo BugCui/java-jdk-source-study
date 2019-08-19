@@ -2460,7 +2460,7 @@ public final class Class<T> implements java.io.Serializable,
     // Caches for certain reflective results
     private static boolean useCaches = true;
 
-    // reflection data that might get invalidated when JVM TI RedefineClasses() is called
+    // 调用JVM TI redefineclass时可能失效的反射数据
     private static class ReflectionData<T> {
         volatile Field[] declaredFields;
         volatile Field[] publicFields;
@@ -2484,7 +2484,7 @@ public final class Class<T> implements java.io.Serializable,
     private volatile transient SoftReference<ReflectionData<T>> reflectionData;
 
     // Incremented by the VM on each call to JVM TI RedefineClasses()
-    // that redefines this class or a superclass.
+    // that redefines th is class or asuperclass.
     private volatile transient int classRedefinedCount = 0;
 
     // Lazily create and cache ReflectionData

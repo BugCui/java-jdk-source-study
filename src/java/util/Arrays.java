@@ -3205,6 +3205,9 @@ public class Arrays {
      *     an array of class <tt>newType</tt>
      * @since 1.6
      */
+    //如果 newType 是一个对象对组，就直接把 original 的元素拷贝到 对象数组中；
+    //否则新建一个 newType 类型的数组。
+
     public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {
         @SuppressWarnings("unchecked")
         T[] copy = ((Object)newType == (Object)Object[].class)

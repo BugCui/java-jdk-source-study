@@ -26,36 +26,15 @@
 package java.util;
 
 /**
- * This class provides a skeletal implementation of the <tt>List</tt>
- * interface to minimize the effort required to implement this interface
- * backed by a "sequential access" data store (such as a linked list).  For
- * random access data (such as an array), <tt>AbstractList</tt> should be used
- * in preference to this class.<p>
+ *AbstractSequentialList 继承自 AbstractList，是 LinkedList 的父类，是 List 接口 的简化版实现。
  *
- * This class is the opposite of the <tt>AbstractList</tt> class in the sense
- * that it implements the "random access" methods (<tt>get(int index)</tt>,
- * <tt>set(int index, E element)</tt>, <tt>add(int index, E element)</tt> and
- * <tt>remove(int index)</tt>) on top of the list's list iterator, instead of
- * the other way around.<p>
+ * 简化在哪儿呢？简化在 AbstractSequentialList 只支持按次序访问，而不像 AbstractList 那样支持随机访问。
  *
- * To implement a list the programmer needs only to extend this class and
- * provide implementations for the <tt>listIterator</tt> and <tt>size</tt>
- * methods.  For an unmodifiable list, the programmer need only implement the
- * list iterator's <tt>hasNext</tt>, <tt>next</tt>, <tt>hasPrevious</tt>,
- * <tt>previous</tt> and <tt>index</tt> methods.<p>
  *
- * For a modifiable list the programmer should additionally implement the list
- * iterator's <tt>set</tt> method.  For a variable-size list the programmer
- * should additionally implement the list iterator's <tt>remove</tt> and
- * <tt>add</tt> methods.<p>
+ *     *可以看到， AbstractSequentialList 把父类 AbstractList 中没有实现或者没有支持的操作都实现了，而且都是调用的 ListIterator 相关方法进行操作。
+ * 在 Java 集合深入理解：AbstractList 中我们介绍了 RandomAccess，里面提到，支持 RandomAccess 的对象，遍历时使用 get 比 迭代器更快。
+ * 而 AbstractSequentialList 只支持迭代器按顺序 访问，不支持 RandomAccess，所以遍历 AbstractSequentialList 的子类，使用 for 循环 get() 的效率要 <= 迭代器遍历：
  *
- * The programmer should generally provide a void (no argument) and collection
- * constructor, as per the recommendation in the <tt>Collection</tt> interface
- * specification.<p>
- *
- * This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
  *
  * @author  Josh Bloch
  * @author  Neal Gafter
@@ -143,6 +122,9 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
      */
     public void add(int index, E element) {
         try {
+//            add(int, E) 添加元素到指定位置，
+//            将当前处于该位置（如果有的话）和任何后续元素的元素移到右边（添加一个到它们的索引）：
+            //调用 ListIterator.add()
             listIterator(index).add(element);
         } catch (NoSuchElementException exc) {
             throw new IndexOutOfBoundsException("Index: "+index);
@@ -236,6 +218,7 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
      * @return an iterator over the elements in this list (in proper sequence)
      */
     public Iterator<E> iterator() {
+        //调用继承自
         return listIterator();
     }
 
@@ -249,5 +232,8 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
      *         sequence)
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
+    //需要实现类实现的方法
     public abstract ListIterator<E> listIterator(int index);
+
+
 }

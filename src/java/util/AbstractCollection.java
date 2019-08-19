@@ -26,8 +26,7 @@
 package java.util;
 
 /**
- * This class provides a skeletal implementation of the <tt>Collection</tt>
- * interface, to minimize the effort required to implement this interface. <p>
+ * 该类提供了Collection接口的骨架实现，以尽量减少实现此接口所需的工作量
  *
  * To implement an unmodifiable collection, the programmer needs only to
  * extend this class and provide implementations for the <tt>iterator</tt> and
@@ -69,7 +68,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
     // Query Operations
 
     /**
-     * Returns an iterator over the elements contained in this collection.
+     * Returns迭代器遍历此集合中包含的元素
      *
      * @return an iterator over the elements contained in this collection
      */

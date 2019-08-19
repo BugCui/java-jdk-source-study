@@ -34,23 +34,8 @@ import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 /**
- * A <tt>CharSequence</tt> is a readable sequence of <code>char</code> values. This
- * interface provides uniform, read-only access to many different kinds of
- * <code>char</code> sequences.
- * A <code>char</code> value represents a character in the <i>Basic
- * Multilingual Plane (BMP)</i> or a surrogate. Refer to <a
- * href="Character.html#unicode">Unicode Character Representation</a> for details.
- *
- * <p> This interface does not refine the general contracts of the {@link
- * java.lang.Object#equals(java.lang.Object) equals} and {@link
- * java.lang.Object#hashCode() hashCode} methods.  The result of comparing two
- * objects that implement <tt>CharSequence</tt> is therefore, in general,
- * undefined.  Each object may be implemented by a different class, and there
- * is no guarantee that each class will be capable of testing its instances
- * for equality with those of the other.  It is therefore inappropriate to use
- * arbitrary <tt>CharSequence</tt> instances as elements in a set or as keys in
- * a map. </p>
- *
+ * CharSequence是char值的可读序列。 该界面提供统一的，只读访问许多不同类型的char序列。
+ * String 类继承了这个类, 那么也就具有其中的方法.
  * @author Mike McCloskey
  * @since 1.4
  * @spec JSR-51

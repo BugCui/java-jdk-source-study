@@ -30,49 +30,15 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * The {@code Vector} class implements a growable array of
- * objects. Like an array, it contains components that can be
- * accessed using an integer index. However, the size of a
- * {@code Vector} can grow or shrink as needed to accommodate
- * adding and removing items after the {@code Vector} has been created.
- *
- * <p>Each vector tries to optimize storage management by maintaining a
- * {@code capacity} and a {@code capacityIncrement}. The
- * {@code capacity} is always at least as large as the vector
- * size; it is usually larger because as components are added to the
- * vector, the vector's storage increases in chunks the size of
- * {@code capacityIncrement}. An application can increase the
- * capacity of a vector before inserting a large number of
- * components; this reduces the amount of incremental reallocation.
- *
- * <p><a name="fail-fast">
- * The iterators returned by this class's {@link #iterator() iterator} and
- * {@link #listIterator(int) listIterator} methods are <em>fail-fast</em></a>:
- * if the vector is structurally modified at any time after the iterator is
- * created, in any way except through the iterator's own
- * {@link ListIterator#remove() remove} or
- * {@link ListIterator#add(Object) add} methods, the iterator will throw a
- * {@link ConcurrentModificationException}.  Thus, in the face of
- * concurrent modification, the iterator fails quickly and cleanly, rather
- * than risking arbitrary, non-deterministic behavior at an undetermined
- * time in the future.  The {@link Enumeration Enumerations} returned by
- * the {@link #elements() elements} method are <em>not</em> fail-fast.
- *
- * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
- * as it is, generally speaking, impossible to make any hard guarantees in the
- * presence of unsynchronized concurrent modification.  Fail-fast iterators
- * throw {@code ConcurrentModificationException} on a best-effort basis.
- * Therefore, it would be wrong to write a program that depended on this
- * exception for its correctness:  <i>the fail-fast behavior of iterators
- * should be used only to detect bugs.</i>
- *
- * <p>As of the Java 2 platform v1.2, this class was retrofitted to
- * implement the {@link List} interface, making it a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.  Unlike the new collection
- * implementations, {@code Vector} is synchronized.  If a thread-safe
- * implementation is not needed, it is recommended to use {@link
- * ArrayList} in place of {@code Vector}.
+ * Vector 特点
+ * 底层由一个可以增长的数组组成
+ * Vector 通过 capacity (容量) 和 capacityIncrement (增长数量) 来尽量少的占用空间
+ * 扩容时默认扩大两倍
+ * 最好在插入大量元素前增加 vector 容量，那样可以减少重新申请内存的次数
+ * 通过 iterator 和 lastIterator 获得的迭代器是 fail-fast 的
+ * 通过 elements 获得的老版迭代器 Enumeration 不是 fail-fast 的
+ * 同步类，每个方法前都有同步锁 synchronized
+ * 在 JDK 2.0 以后，经过优化，Vector 也加入了 Java 集合框架大家族
  *
  * @author  Lee Boynton
  * @author  Jonathan Payne
@@ -118,8 +84,7 @@ public class Vector<E>
     private static final long serialVersionUID = -2767605614048989439L;
 
     /**
-     * Constructs an empty vector with the specified initial capacity and
-     * capacity increment.
+     * //创建指定容量大小的数组，设置增长量。如果增长量为 非正数，扩容时会扩大两倍
      *
      * @param   initialCapacity     the initial capacity of the vector
      * @param   capacityIncrement   the amount by which the capacity is
@@ -137,9 +102,7 @@ public class Vector<E>
     }
 
     /**
-     * Constructs an empty vector with the specified initial capacity and
-     * with its capacity increment equal to zero.
-     *
+     * //创建一个用户指定容量的数组，同时增长量为 0
      * @param   initialCapacity   the initial capacity of the vector
      * @throws IllegalArgumentException if the specified initial capacity
      *         is negative
@@ -149,18 +112,14 @@ public class Vector<E>
     }
 
     /**
-     * Constructs an empty vector so that its internal data array
-     * has size {@code 10} and its standard capacity increment is
-     * zero.
+     * //创建默认容量 10 的数组，同时增长量为 0
      */
     public Vector() {
         this(10);
     }
 
     /**
-     * Constructs a vector containing the elements of the specified
-     * collection, in the order they are returned by the collection's
-     * iterator.
+     * //创建一个包含指定集合的数组
      *
      * @param c the collection whose elements are to be placed into this
      *       vector
@@ -168,9 +127,11 @@ public class Vector<E>
      * @since   1.2
      */
     public Vector(Collection<? extends E> c) {
+        //转成数组，赋值
         elementData = c.toArray();
         elementCount = elementData.length;
         // c.toArray might (incorrectly) not return Object[] (see 6260652)
+        //可能有这个神奇的 bug，用 Arrays.copyOf 重新创建、复制
         if (elementData.getClass() != Object[].class)
             elementData = Arrays.copyOf(elementData, elementCount, Object[].class);
     }
@@ -233,10 +194,7 @@ public class Vector<E>
     }
 
     /**
-     * This implements the unsynchronized semantics of ensureCapacity.
-     * Synchronized methods in this class can internally call this
-     * method for ensuring capacity without incurring the cost of an
-     * extra synchronization.
+     * //扩容前兆，检查数量
      *
      * @see #ensureCapacity(int)
      */
@@ -254,9 +212,11 @@ public class Vector<E>
      */
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
+    //扩容，传入最小容量，跟 ArrayList.grow(int) 很相似，只是扩大量不同
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = elementData.length;
+        //如果增长量 capacityIncrement 不大于 0 ，就扩容 2 倍
         int newCapacity = oldCapacity + ((capacityIncrement > 0) ?
                                          capacityIncrement : oldCapacity);
         if (newCapacity - minCapacity < 0)
@@ -570,22 +530,7 @@ public class Vector<E>
     }
 
     /**
-     * Inserts the specified object as a component in this vector at the
-     * specified {@code index}. Each component in this vector with
-     * an index greater or equal to the specified {@code index} is
-     * shifted upward to have an index one greater than the value it had
-     * previously.
-     *
-     * <p>The index must be a value greater than or equal to {@code 0}
-     * and less than or equal to the current size of the vector. (If the
-     * index is equal to the current size of the vector, the new element
-     * is appended to the Vector.)
-     *
-     * <p>This method is identical in functionality to the
-     * {@link #add(int, Object) add(int, E)}
-     * method (which is part of the {@link List} interface).  Note that the
-     * {@code add} method reverses the order of the parameters, to more closely
-     * match array usage.
+     * //在指定位置插入一个元素，同步的
      *
      * @param      obj     the component to insert
      * @param      index   where to insert the new component
@@ -599,15 +544,15 @@ public class Vector<E>
                                                      + " > " + elementCount);
         }
         ensureCapacityHelper(elementCount + 1);
+        //扩容后就把插入点后面的元素统一后移一位
         System.arraycopy(elementData, index, elementData, index + 1, elementCount - index);
+        //赋值
         elementData[index] = obj;
         elementCount++;
     }
 
     /**
-     * Adds the specified component to the end of this vector,
-     * increasing its size by one. The capacity of this vector is
-     * increased if its size becomes greater than its capacity.
+     * //尾部插入元素，同步的
      *
      * <p>This method is identical in functionality to the
      * {@link #add(Object) add(E)}
@@ -867,12 +812,7 @@ public class Vector<E>
     }
 
     /**
-     * Appends all of the elements in the specified Collection to the end of
-     * this Vector, in the order that they are returned by the specified
-     * Collection's Iterator.  The behavior of this operation is undefined if
-     * the specified Collection is modified while the operation is in progress.
-     * (This implies that the behavior of this call is undefined if the
-     * specified Collection is this Vector, and this Vector is nonempty.)
+     * //添加一个集合到尾部，同步的
      *
      * @param c elements to be inserted into this Vector
      * @return {@code true} if this Vector changed as a result of the call
@@ -881,9 +821,11 @@ public class Vector<E>
      */
     public synchronized boolean addAll(Collection<? extends E> c) {
         modCount++;
+        //将要添加的集合转成数组
         Object[] a = c.toArray();
         int numNew = a.length;
         ensureCapacityHelper(elementCount + numNew);
+        //扩容，复制到数组后面
         System.arraycopy(a, 0, elementData, elementCount, numNew);
         elementCount += numNew;
         return numNew != 0;
@@ -934,12 +876,7 @@ public class Vector<E>
     }
 
     /**
-     * Inserts all of the elements in the specified Collection into this
-     * Vector at the specified position.  Shifts the element currently at
-     * that position (if any) and any subsequent elements to the right
-     * (increases their indices).  The new elements will appear in the Vector
-     * in the order that they are returned by the specified Collection's
-     * iterator.
+     * //添加一个结合到指定位置，同步的
      *
      * @param index index at which to insert the first element from the
      *              specified collection
@@ -959,11 +896,13 @@ public class Vector<E>
         int numNew = a.length;
         ensureCapacityHelper(elementCount + numNew);
 
+        //要移动多少个元素
         int numMoved = elementCount - index;
         if (numMoved > 0)
+            //把插入位置后面的元素后移这么多位
             System.arraycopy(elementData, index, elementData, index + numNew,
                              numMoved);
-
+        //复制元素到数组中
         System.arraycopy(a, 0, elementData, index, numNew);
         elementCount += numNew;
         return numNew != 0;

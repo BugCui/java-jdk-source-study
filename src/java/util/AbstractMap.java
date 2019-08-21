@@ -82,6 +82,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * This implementation returns <tt>entrySet().size()</tt>.
      */
     public int size() {
+        //使用 Set.size() 获取元素个数
         return entrySet().size();
     }
 
@@ -108,6 +109,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @throws ClassCastException   {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */
+    //查询是否存在指定的值
     public boolean containsValue(Object value) {
         Iterator<Entry<K,V>> i = entrySet().iterator();
         if (value==null) {
@@ -140,6 +142,9 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @throws ClassCastException   {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */
+    //是否存在指定的 key
+    //时间复杂度为 O(n)
+    //许多实现类都重写了这个方法
     public boolean containsKey(Object key) {
         Iterator<Map.Entry<K,V>> i = entrySet().iterator();
         if (key==null) {
@@ -172,7 +177,10 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @throws ClassCastException            {@inheritDoc}
      * @throws NullPointerException          {@inheritDoc}
      */
+    //时间复杂度为 O(n)
+    //许多实现类都重写了这个方法
     public V get(Object key) {
+        //使用 Set 迭代器进行遍历，根据 key 查找
         Iterator<Entry<K,V>> i = entrySet().iterator();
         if (key==null) {
             while (i.hasNext()) {
@@ -343,9 +351,11 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * is performed, so there is a slight chance that multiple calls to this
      * method will not all return the same set.
      */
+
     public Set<K> keySet() {
         Set<K> ks = keySet;
         if (ks == null) {
+            //如果成员变量 keySet 为 null,创建个空的 AbstractSet
             ks = new AbstractSet<K>() {
                 public Iterator<K> iterator() {
                     return new Iterator<K>() {
@@ -405,6 +415,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
     public Collection<V> values() {
         Collection<V> vals = values;
         if (vals == null) {
+            //没有就创建个空的 AbstractCollection 返回
             vals = new AbstractCollection<V>() {
                 public Iterator<V> iterator() {
                     return new Iterator<V>() {
@@ -472,23 +483,31 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @param o object to be compared for equality with this map
      * @return <tt>true</tt> if the specified object is equal to this map
      */
+    //判断指定的对象是否和当前 Map 一致
     public boolean equals(Object o) {
+        //引用指向同一个对象
         if (o == this)
             return true;
 
+        //必须是 Map 的实现类
         if (!(o instanceof Map))
             return false;
+        //强转为 Map
         Map<?,?> m = (Map<?,?>) o;
+        //元素个数必须一致
         if (m.size() != size())
             return false;
 
         try {
+            //还是需要一个个遍历，对比
             Iterator<Entry<K,V>> i = entrySet().iterator();
             while (i.hasNext()) {
+                //对比每个 Entry 的 key 和 value
                 Entry<K,V> e = i.next();
                 K key = e.getKey();
                 V value = e.getValue();
                 if (value == null) {
+                    //对比 key, value
                     if (!(m.get(key)==null && m.containsKey(key)))
                         return false;
                 } else {
@@ -523,10 +542,12 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      * @see Object#equals(Object)
      * @see Set#equals(Object)
      */
+    //整个 map 的 hashCode()
     public int hashCode() {
         int h = 0;
         Iterator<Entry<K,V>> i = entrySet().iterator();
         while (i.hasNext())
+            //是所有 Entry 哈希值的和
             h += i.next().hashCode();
         return h;
     }
@@ -582,6 +603,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      *
      * NB: Do not replace with Object.equals until JDK-8015417 is resolved.
      */
+    //内部用来测试 SimpleEntry, SimpleImmutableEntry 是否相等的方法
     private static boolean eq(Object o1, Object o2) {
         return o1 == null ? o2 == null : o1.equals(o2);
     }
@@ -604,6 +626,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      *
      * @since 1.6
      */
+//    表示可变的键值对
     public static class SimpleEntry<K,V>
         implements Entry<K,V>, java.io.Serializable
     {
@@ -660,6 +683,8 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          * @param value new value to be stored in this entry
          * @return the old value corresponding to the entry
          */
+
+        //支持 修改值
         public V setValue(V value) {
             V oldValue = this.value;
             this.value = value;
@@ -734,8 +759,9 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
      *
      * @since 1.6
      */
+//    表示一个不可变的键值对
     public static class SimpleImmutableEntry<K,V>
-        implements Entry<K,V>, java.io.Serializable
+            implements Entry<K,V>, java.io.Serializable
     {
         private static final long serialVersionUID = 7138329143949025153L;
 
@@ -760,6 +786,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          *
          * @param entry the entry to copy
          */
+        //构造函数2，传入一个 Entry，赋值给本地的 key 和 value
         public SimpleImmutableEntry(Entry<? extends K, ? extends V> entry) {
             this.key   = entry.getKey();
             this.value = entry.getValue();
@@ -793,6 +820,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          * @return (Does not return)
          * @throws UnsupportedOperationException always
          */
+        //修改值，不可修改的 Entry 默认不支持这个操作
         public V setValue(V value) {
             throw new UnsupportedOperationException();
         }
@@ -818,6 +846,9 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          *         entry
          * @see    #hashCode
          */
+        //比较指定 Entry 和本地是否相等
+        //要求顺序，key-value 必须全相等
+        //只要是 Map 的实现类即可，不同实现也可以相等
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
@@ -838,6 +869,8 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          * @return the hash code value for this map entry
          * @see    #equals
          */
+        //哈希值
+        //是键的哈希与值的哈希的 异或
         public int hashCode() {
             return (key   == null ? 0 :   key.hashCode()) ^
                    (value == null ? 0 : value.hashCode());
@@ -851,6 +884,7 @@ public abstract class AbstractMap<K,V> implements Map<K,V> {
          *
          * @return a String representation of this map entry
          */
+        //返回一个 String
         public String toString() {
             return key + "=" + value;
         }

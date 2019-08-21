@@ -143,21 +143,8 @@ package java.util;
  */
 public interface Queue<E> extends Collection<E> {
     /**
-     * Inserts the specified element into this queue if it is possible to do so
-     * immediately without violating capacity restrictions, returning
-     * {@code true} upon success and throwing an {@code IllegalStateException}
-     * if no space is currently available.
-     *
-     * @param e the element to add
-     * @return {@code true} (as specified by {@link Collection#add})
-     * @throws IllegalStateException if the element cannot be added at this
-     *         time due to capacity restrictions
-     * @throws ClassCastException if the class of the specified element
-     *         prevents it from being added to this queue
-     * @throws NullPointerException if the specified element is null and
-     *         this queue does not permit null elements
-     * @throws IllegalArgumentException if some property of this element
-     *         prevents it from being added to this queue
+     *Queue 是个接口，它提供的 add, offer 方法初衷是希望子类能够禁止添加元素为 null，
+     * 这样可以避免在查询时返回 null 究竟是正确还是错误。
      */
     boolean add(E e);
 
@@ -181,9 +168,7 @@ public interface Queue<E> extends Collection<E> {
     boolean offer(E e);
 
     /**
-     * Retrieves and removes the head of this queue.  This method differs
-     * from {@link #poll poll} only in that it throws an exception if this
-     * queue is empty.
+     * remove(), poll() 删除并返回头部
      *
      * @return the head of this queue
      * @throws NoSuchElementException if this queue is empty
@@ -199,9 +184,7 @@ public interface Queue<E> extends Collection<E> {
     E poll();
 
     /**
-     * Retrieves, but does not remove, the head of this queue.  This method
-     * differs from {@link #peek peek} only in that it throws an exception
-     * if this queue is empty.
+     * element(), peek() 获取但不删除：
      *
      * @return the head of this queue
      * @throws NoSuchElementException if this queue is empty

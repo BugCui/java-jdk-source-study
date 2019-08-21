@@ -1183,7 +1183,7 @@ public final class System {
 
 
         lineSeparator = props.getProperty("line.separator");
-        sun.misc.Version.init();
+//        sun.misc.Version.init();
 
         FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
         FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
